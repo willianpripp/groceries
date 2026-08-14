@@ -1,0 +1,11 @@
+{% macro entry_row(e, at_store=None, from_store=None) %}
+<form method="post" action="{{ base }}/entries/{{ e.id }}/toggle" class="entry">
+  {% if at_store %}<input type="hidden" name="at" value="{{ at_store }}">{% endif %}
+  <button class="box" title="Bought"></button>
+  <span class="nm">{{ e.name }}</span>
+  {% if from_store %}<span class="from" style="color: {{ from_store.color }}">{{ from_store.name }}</span>{% endif %}
+  {% if e.qty %}<span class="q">{{ e.qty }}</span>{% endif %}
+  {% if e.note %}<span class="note">{{ e.note }}</span>{% endif %}
+  {% if e.added_by %}<span class="by">{{ e.added_by[:1] }}</span>{% endif %}
+</form>
+{% endmacro %}

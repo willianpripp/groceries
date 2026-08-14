@@ -1,0 +1,130 @@
+/* Groceries. Phone-first: the base styles ARE the phone layout; the desktop
+   gets columns at a breakpoint. Palette is the household dark set. */
+
+:root {
+  --ground: #141920;
+  --surface: #1B222C;
+  --raised: #222C38;
+  --text: #E8ECF1;
+  --muted: #93A0B0;
+  --dim: #6E7B8A;
+  --accent: #E8A33D;
+  --ok: #4FBF73;
+  --line: rgba(255,255,255,.09);
+  --line-strong: rgba(255,255,255,.18);
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--ground); color: var(--text);
+  font-family: var(--sans); font-size: 16px; line-height: 1.5;
+  padding: 14px 14px 80px; max-width: 1200px; margin-inline: auto;
+}
+
+.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.brand { font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+
+select, input, button {
+  font: inherit; color: var(--text); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: 10px;
+}
+select { padding: 8px 10px; }
+
+/* --- add bar ------------------------------------------------------------- */
+.addbar { margin-bottom: 10px; }
+.addbar .row1 { display: flex; gap: 8px; }
+.addbar input[name=name] { flex: 1; padding: 12px 14px; min-width: 0; }
+.addbar .qty { width: 74px; padding: 12px 10px; }
+.addbar .go {
+  padding: 12px 18px; background: var(--accent); color: #1A1408;
+  font-weight: 700; border: 0; border-radius: 10px;
+}
+.chips { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.chip {
+  --c: var(--muted);
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .03em;
+  padding: 7px 12px; border-radius: 20px; background: var(--raised);
+  color: var(--muted); border: 1px solid var(--line); cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+}
+.chip input { appearance: none; margin: 0; width: 0; height: 0; }
+.chip:has(input:checked) { border-color: var(--c); color: var(--c); font-weight: 700; }
+/* the memory's suggestion, shown while "Auto" is still selected */
+.chip.hint { box-shadow: 0 0 0 1.5px var(--c) inset; color: var(--c); }
+
+.usuals { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; flex-wrap: wrap; }
+.usuals button {
+  padding: 7px 12px; border-radius: 20px; font-size: 13px;
+  background: var(--raised); border: 1px solid var(--line-strong); cursor: pointer;
+}
+.usuals .uhint { color: var(--dim); font-size: 12px; }
+
+/* --- stores -------------------------------------------------------------- */
+.cols { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 720px) {
+  .cols:not(.shopping) { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+}
+
+.store { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 12px 8px; }
+.store h2 {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
+  font-size: 15px; letter-spacing: -.008em;
+}
+.store h2 .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+.store h2 .ct { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--dim); font-weight: 400; }
+.store.here { border-color: var(--line-strong); }
+.store .empty { color: var(--dim); font-size: 14px; margin: 4px 2px 10px; }
+.elsewhere { opacity: .92; }
+
+/* --- entries ------------------------------------------------------------- */
+.entry {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--raised); border: 1px solid var(--line);
+  border-radius: 10px; padding: 4px 10px 4px 4px; margin-bottom: 7px;
+}
+.entry .box {
+  width: 40px; height: 40px; flex: 0 0 auto; cursor: pointer;
+  background: transparent; border: 0; border-radius: 8px; position: relative;
+}
+.entry .box::after {
+  content: ""; position: absolute; inset: 10px;
+  border: 2px solid var(--dim); border-radius: 7px;
+}
+.entry .nm { font-size: 15.5px; overflow-wrap: anywhere; }
+.entry .q, .entry .note { color: var(--dim); font-size: 12.5px; font-family: var(--mono); }
+.entry .from { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; }
+.entry .by {
+  margin-left: auto; width: 20px; height: 20px; flex: 0 0 auto;
+  display: grid; place-items: center; border-radius: 50%;
+  background: var(--ground); color: var(--dim); font-size: 11px; font-family: var(--mono);
+}
+.entry.done { opacity: .5; }
+.entry.done .nm { text-decoration: line-through; }
+.entry.done .box { color: var(--ok); font-size: 18px; }
+.entry.done .box::after { border-color: var(--ok); }
+
+.donebox { margin-top: 18px; }
+.donebox h2 { font-size: 12px; font-family: var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); font-weight: 500; }
+
+/* --- login ---------------------------------------------------------------- */
+.loginwrap { min-height: 82vh; display: grid; place-items: center; }
+.logincard {
+  width: min(360px, 92vw); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: 16px;
+  padding: 28px 26px 22px; text-align: center;
+}
+.loginbrand { font-size: 40px; }
+.logincard h1 { margin: 6px 0 2px; font-size: 24px; letter-spacing: -.015em; }
+.loginsub, .loginmsg { color: var(--muted); font-size: 14px; margin: 4px 0 18px; }
+.logincard form { display: grid; gap: 10px; }
+.logincard input { padding: 12px 14px; width: 100%; }
+.logincard button {
+  padding: 12px; background: var(--accent); color: #1A1408;
+  font-weight: 700; border: 0; border-radius: 10px; cursor: pointer;
+}
+.loginerr { color: #E5714D; font-size: 13.5px; margin: 0; }
+.loginhint { color: var(--dim); font-size: 12px; margin-top: 16px; }

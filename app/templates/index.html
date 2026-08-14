@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% from "_entry.html" import entry_row with context %}
+{% block content %}
+
+<header class="top">
+  <span class="brand">🛒 Groceries</span>
+  {# In-store mode: pick where you physically are and that store leads the
+     page; everything else collapses into "still needed elsewhere". #}
+  <form method="post" action="{{ base }}/at" class="atform">
+    <select name="store" onchange="this.form.submit()" aria-label="I'm at">
+      <option value="">Not shopping</option>
+      {% for s in stores %}
+      <option value="{{ s.id }}" {% if at == s.id %}selected{% endif %}>I'm at {{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</header>
+
+<form method="post" action="{{ base }}/add" class="addbar" autocomplete="off">
+  <div class="row1">
+    <input name="name" list="known" placeholder="Add something…" required
+           autocomplete="off" id="addname">
+    <input name="qty" placeholder="qty" class="qty">
+    <button type="submit" class="go">Add</button>
+  </div>
+  <datalist id="known">
+    {% for n in names %}<option value="{{ n }}">{% endfor %}
+  </datalist>
+  {# The store chips. "Auto" trusts the memory (item first, category second);
+     tapping a chip is the deliberate act that moves an item's home store. #}
+  <div class="chips" id="chips">
+    <label class="chip"><input type="radio" name="store" value="auto" checked>Auto</label>
+    {% for s in stores %}
+    <label class="chip" style="--c: {{ s.color }}" data-store="{{ s.id }}">
+      <input type="radio" name="store" value="{{ s.id }}">{{ s.name }}</label>
+    {% endfor %}
+  </div>
+</form>
+
+{% if usuals %}
+<form method="post" action="{{ base }}/usuals" class="usuals">
+  <button type="submit" title="Everything bought 3+ times in 60 days that is not on the list">
+    ↺ Add the usuals ({{ usuals|length }})</button>
+  <span class="uhint">{% for u in usuals[:5] %}{{ u.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% if usuals|length > 5 %}…{% endif %}</span>
+</form>
+{% endif %}
+
+{% set ordered = (stores | selectattr('id', 'equalto', at) | list) + (stores | rejectattr('id', 'equalto', at) | list) if at else stores %}
+
+<main class="cols {% if at %}shopping{% endif %}">
+  {% if at %}
+    {% for s in stores if s.id == at %}
+    <section class="store here">
+      <h2><span class="dot" style="background: {{ s.color }}"></span>At {{ s.name }}
+        <span class="ct">{{ by_store[s.id] | length }} to buy</span></h2>
+      {% for e in by_store[s.id] %}{{ entry_row(e, s.id) }}{% endfor %}
+      {% if not by_store[s.id] %}<p class="empty">Nothing here. Check below before you leave.</p>{% endif %}
+    </section>
+    {% endfor %}
+    <section class="store elsewhere">
+      <h2>Still needed elsewhere <span class="ct">tap = buying it here instead</span></h2>
+      {% for s in stores if s.id != at %}
+        {% for e in by_store[s.id] %}{{ entry_row(e, at, s) }}{% endfor %}
+      {% endfor %}
+      {% for e in unsorted %}{{ entry_row(e, at) }}{% endfor %}
+    </section>
+  {% else %}
+    {% for s in stores %}
+    <section class="store">
+      <h2><span class="dot" style="background: {{ s.color }}"></span>{{ s.name }}
+        <span class="ct">{{ by_store[s.id] | length }}</span></h2>
+      {% for e in by_store[s.id] %}{{ entry_row(e) }}{% endfor %}
+    </section>
+    {% endfor %}
+    {% if unsorted %}
+    <section class="store">
+      <h2><span class="dot" style="background: var(--dim)"></span>Anywhere
+        <span class="ct">{{ unsorted | length }}</span></h2>
+      {% for e in unsorted %}{{ entry_row(e) }}{% endfor %}
+    </section>
+    {% endif %}
+  {% endif %}
+</main>
+
+{% if done_today %}
+<section class="donebox">
+  <h2>Bought today</h2>
+  {% for e in done_today %}
+  <form method="post" action="{{ base }}/entries/{{ e.id }}/toggle" class="entry done">
+    <button class="box" title="Un-buy">✓</button>
+    <span class="nm">{{ e.name }}</span>
+    {% if e.qty %}<span class="q">{{ e.qty }}</span>{% endif %}
+  </form>
+  {% endfor %}
+</section>
+{% endif %}
+
+<script>
+// The one enhancement: as a name is typed, ask the memory and light up the
+// store chip it would pick, so "Auto" is never a mystery. Plain form posts do
+// all the real work; this only informs.
+const nameEl = document.getElementById('addname');
+let t;
+nameEl.addEventListener('input', () => {
+  clearTimeout(t);
+  t = setTimeout(async () => {
+    const v = nameEl.value.trim();
+    document.querySelectorAll('#chips .chip').forEach(c => c.classList.remove('hint'));
+    if (v.length < 2) return;
+    try {
+      const r = await fetch(`{{ base }}/suggest?name=${encodeURIComponent(v)}`);
+      const s = await r.json();
+      if (s.store_id) {
+        const chip = document.querySelector(`#chips .chip[data-store="${s.store_id}"]`);
+        if (chip) chip.classList.add('hint');
+      }
+    } catch (e) {}
+  }, 250);
+});
+</script>
+{% endblock %}
+
