@@ -73,7 +73,9 @@ create index if not exists entries_open on entries (done_at) where done_at is nu
 """
 
 SEED_STORES = [("Costco", "#C94A4A", 10), ("Aldi", "#4A7BC9", 20),
-               ("Walmart", "#3FA7C9", 30), ("Kroger", "#7B68C9", 40)]
+               ("Walmart", "#3FA7C9", 30), ("Kroger", "#7B68C9", 40),
+               ("Lidl", "#C9A54A", 50), ("Farmers Market", "#5FBF8F", 60),
+               ("Asian Market", "#C97BB0", 70)]
 
 pool = ConnectionPool(DSN, min_size=1, max_size=4, open=False)
 
