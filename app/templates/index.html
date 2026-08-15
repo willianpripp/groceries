@@ -65,7 +65,9 @@
       {% for e in unsorted %}{{ entry_row(e, at) }}{% endfor %}
     </section>
   {% else %}
-    {% for s in stores %}
+    {# Stores with something on the list get cards; empty ones collapse into
+       one slim line below, so the board is only as wide as the actual list. #}
+    {% for s in stores if by_store[s.id] %}
     <section class="store">
       <h2><span class="dot" style="background: {{ s.color }}"></span>{{ s.name }}
         <span class="ct">{{ by_store[s.id] | length }}</span></h2>
@@ -81,6 +83,14 @@
     {% endif %}
   {% endif %}
 </main>
+
+{% if not at %}
+<p class="emptystores">
+  {% for s in stores if not by_store[s.id] %}
+  <span class="es"><span class="dot" style="background: {{ s.color }}"></span>{{ s.name }}</span>
+  {% endfor %}
+</p>
+{% endif %}
 
 {% if done_today %}
 <section class="donebox">

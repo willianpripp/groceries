@@ -34,7 +34,7 @@ select, input, button {
 select { padding: 8px 10px; }
 
 /* --- add bar ------------------------------------------------------------- */
-.addbar { margin-bottom: 10px; }
+.addbar { margin-bottom: 10px; max-width: 760px; }
 .addbar .row1 { display: flex; gap: 8px; }
 .addbar input[name=name] { flex: 1; padding: 12px 14px; min-width: 0; }
 .addbar .qty { width: 74px; padding: 12px 10px; }
@@ -66,8 +66,18 @@ select { padding: 8px 10px; }
 /* --- stores -------------------------------------------------------------- */
 .cols { display: grid; gap: 14px; grid-template-columns: 1fr; }
 @media (min-width: 720px) {
-  .cols:not(.shopping) { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+  /* Fixed-width tidy columns, left-aligned: no stretched cards on wide
+     monitors, no ragged rows from empty stores (those collapse below). */
+  .cols:not(.shopping) { grid-template-columns: repeat(auto-fill, 280px); align-items: start; }
+  .cols.shopping { max-width: 760px; }
 }
+.emptystores {
+  display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+  color: var(--dim); font-size: 13px; margin-top: 18px;
+  border-top: 1px solid var(--line); padding-top: 12px;
+}
+.emptystores .es { display: inline-flex; align-items: center; gap: 6px; }
+.emptystores .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; opacity: .6; }
 
 .store { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 12px 8px; }
 .store h2 {
