@@ -7,6 +7,14 @@ first, category default second), store columns (desktop) / stacked sections
 restock, autocomplete from history, bought-today strip with un-buy, PWA
 manifest + icons.
 
+**Added later on 2026-08-15** (calendar session, Willian's ask, 9a8be16):
+open entries can be edited and removed, not only bought. Pencil on each row
+opens an inline panel (qty, note, store, Save, Remove with confirm). Remove
+deletes only the open entry; item memory and bought history stay. A store
+change in the panel moves the item's home, same rule as the add chips.
+updated_at column feeds the live-sync fingerprint; the poller holds still
+while a panel is open. Verified live at phone and desktop widths.
+
 **Decided rules encoded:** buying at a different store is an exception and
 never moves an item's home store; ADDING with an explicit store chip is the
 deliberate act that does. Auto on an unknown item lands in "Anywhere".
