@@ -25,7 +25,7 @@ body {
 }
 
 .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-.brand { font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+.brand { font-weight: 800; font-size: 20px; letter-spacing: -.01em; white-space: nowrap; }
 /* The store picker keeps its right-hand seat, with the way home beyond it:
    margin-left is what holds the pair together once the header has 3 children. */
 .top .atform { margin-left: auto; }
