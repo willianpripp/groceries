@@ -70,6 +70,10 @@ create table if not exists entries (
     bought_store int references stores(id)
 );
 create index if not exists entries_open on entries (done_at) where done_at is null;
+
+-- In-place edits (qty/note/store, 2026-08-15) need their own timestamp so the
+-- live-sync fingerprint moves without touching added_at (which orders the list).
+alter table entries add column if not exists updated_at timestamptz;
 """
 
 SEED_STORES = [("Costco", "#C94A4A", 10), ("Aldi", "#4A7BC9", 20),
@@ -154,9 +158,10 @@ def poke():
     r = q1("""select count(*) n,
                  coalesce(max(extract(epoch from added_at)), 0) a,
                  coalesce(max(extract(epoch from done_at)), 0) d,
+                 coalesce(max(extract(epoch from updated_at)), 0) u,
                  coalesce(max(id), 0) m
               from entries""")
-    return {"v": f"{r['n']}:{r['m']}:{int(r['a'])}:{int(r['d'])}"}
+    return {"v": f"{r['n']}:{r['m']}:{int(r['a'])}:{int(r['d'])}:{int(r['u'])}"}
 
 
 # --- the memory -----------------------------------------------------------------
@@ -324,6 +329,31 @@ def move(request: Request, eid: int, store: int = Form(...)):
     if e:
         q("update entries set planned_store = %s where id = %s", (store, eid))
         remember(e["name"], store, None)
+    return RedirectResponse(base_of(request) + "/", status_code=303)
+
+
+@app.post("/entries/{eid}/update")
+def update_entry(request: Request, eid: int, qty: str = Form(""),
+                 note: str = Form(""), store: str = Form("")):
+    """Edit an open entry in place: qty, note, store. Changing the store here
+    is as deliberate as tapping a chip on add, so it moves the item's home."""
+    e = q1("select e.*, i.name from entries e join items i on i.id = e.item_id"
+           " where e.id = %s and e.done_at is null", (eid,))
+    if e:
+        new_store = int(store) if store.isdigit() else None
+        q("update entries set qty = %s, note = %s, planned_store = %s,"
+          " updated_at = now() where id = %s",
+          (qty.strip() or "1", note.strip(), new_store, eid))
+        if new_store and new_store != e["planned_store"]:
+            remember(e["name"], new_store, None)
+    return RedirectResponse(base_of(request) + "/", status_code=303)
+
+
+@app.post("/entries/{eid}/delete")
+def delete_entry(request: Request, eid: int):
+    """Take an open entry off the list entirely (mis-adds, changed minds).
+    The item's memory survives; bought rows are history and never deleted."""
+    q("delete from entries where id = %s and done_at is null", (eid,))
     return RedirectResponse(base_of(request) + "/", status_code=303)
 
 

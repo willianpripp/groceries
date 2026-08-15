@@ -100,6 +100,16 @@
 {% endif %}
 
 <script>
+// Edit/remove (2026-08-15): the ✎ shows the row's own panel. One listener for
+// the whole page; the panel is plain form posts like everything else.
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('.editbtn');
+  if (!b) return;
+  const panel = b.closest('.entrywrap').querySelector('.editpanel');
+  panel.hidden = !panel.hidden;
+  b.setAttribute('aria-expanded', String(!panel.hidden));
+});
+
 // The one enhancement: as a name is typed, ask the memory and light up the
 // store chip it would pick, so "Auto" is never a mystery. Plain form posts do
 // all the real work; this only informs.
@@ -127,6 +137,7 @@ nameEl.addEventListener('input', () => {
 let pokeV = null;
 setInterval(async () => {
   if (document.hidden) return;
+  if (document.querySelector('.editpanel:not([hidden])')) return;
   const el = document.activeElement;
   if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT') && el.value) return;
   try {
