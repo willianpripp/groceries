@@ -1,6 +1,11 @@
 # STATUS
 
-**Where it stands (2026-08-15, end of day):** live, in real use, already
+**Friction round 1 (2026-08-15, afternoon):** 🏠 home link to the Casa portal
+in the header (portal-prefix aware: "/" behind the funnel, :10000 on the
+tailnet port), brand pinned to one line beside it. Deployed and verified at
+390px and 1280px.
+
+**Where it stood (2026-08-15, end of the build day):** live, in real use, already
 reshaped by it: **live sync** between phones (4s change-fingerprint poll,
 never mid-typing), **edit/remove panels** on rows (built by the calendar
 session at Willian's direct ask, same home-store rules), **empty stores
