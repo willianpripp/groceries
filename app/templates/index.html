@@ -84,13 +84,7 @@
   {% endif %}
 </main>
 
-{% if not at %}
-<p class="emptystores">
-  {% for s in stores if not by_store[s.id] %}
-  <span class="es"><span class="dot" style="background: {{ s.color }}"></span>{{ s.name }}</span>
-  {% endfor %}
-</p>
-{% endif %}
+
 
 {% if done_today %}
 <section class="donebox">

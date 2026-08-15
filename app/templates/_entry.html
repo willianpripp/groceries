@@ -4,7 +4,7 @@
   <button class="box" title="Bought"></button>
   <span class="nm">{{ e.name }}</span>
   {% if from_store %}<span class="from" style="color: {{ from_store.color }}">{{ from_store.name }}</span>{% endif %}
-  {% if e.qty %}<span class="q">{{ e.qty }}</span>{% endif %}
+  <span class="q">{{ e.qty or '1' }}</span>
   {% if e.note %}<span class="note">{{ e.note }}</span>{% endif %}
   {% if e.added_by %}<span class="by">{{ e.added_by[:1] }}</span>{% endif %}
 </form>

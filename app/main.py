@@ -294,9 +294,10 @@ def add(request: Request, name: str = Form(""), store: str = Form("auto"),
         s = suggest_store(name)
         item = remember(name, None, category or None)
         planned = s["store_id"]
+    # No quantity means one: every row carries a number (Willian, 2026-08-15).
     q("insert into entries (item_id, qty, note, planned_store, added_by)"
       " values (%s, %s, %s, %s, %s)",
-      (item["id"], qty.strip(), note.strip(), planned, who(request)))
+      (item["id"], qty.strip() or "1", note.strip(), planned, who(request)))
     return RedirectResponse(base_of(request) + "/", status_code=303)
 
 
