@@ -213,7 +213,7 @@ def who(request: Request) -> str:
         if "=" in pair:
             addr, _, name = pair.partition("=")
             if addr.strip() == str(ip):
-                return name.strip()
+                return name.strip().capitalize()
     return ""
 
 
