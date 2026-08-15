@@ -1,7 +1,13 @@
 # STATUS
 
-**Where it stands (2026-08-15):** v1 live and in use, built in one session
-from the approved sketches. Add bar with the two-level store memory (item
+**Where it stands (2026-08-15, end of day):** live, in real use, already
+reshaped by it: **live sync** between phones (4s change-fingerprint poll,
+never mid-typing), **edit/remove panels** on rows (built by the calendar
+session at Willian's direct ask, same home-store rules), **empty stores
+vanish** from the board, **quantity defaults to 1** and always shows,
+desktop layout fixed (tidy fixed-width columns), seven stores (Costco, Aldi,
+Walmart, Kroger, Lidl, Farmers Market, Asian Market). v1 was built in one
+session from the approved sketches. Add bar with the two-level store memory (item
 first, category default second), store columns (desktop) / stacked sections
 (phone), in-store mode with the elsewhere list and buy-here, usuals one-tap
 restock, autocomplete from history, bought-today strip with un-buy, PWA
