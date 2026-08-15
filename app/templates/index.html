@@ -127,6 +127,21 @@ nameEl.addEventListener('input', () => {
     } catch (e) {}
   }, 250);
 });
+
+// Live sync: poll a change fingerprint and reload when the other phone edits.
+// Never mid-typing (an input is focused) and never in a hidden tab.
+let pokeV = null;
+setInterval(async () => {
+  if (document.hidden) return;
+  const el = document.activeElement;
+  if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT') && el.value) return;
+  try {
+    const r = await fetch(`{{ base }}/poke`);
+    const { v } = await r.json();
+    if (pokeV === null) pokeV = v;
+    else if (v !== pokeV) location.reload();
+  } catch (e) {}
+}, 4000);
 </script>
 {% endblock %}
 

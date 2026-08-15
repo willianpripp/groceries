@@ -146,6 +146,19 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/poke")
+def poke():
+    """A cheap change fingerprint for live sync between phones: the page
+    polls this and reloads when it moves. Any add, check-off, un-buy or move
+    changes it; reading never does."""
+    r = q1("""select count(*) n,
+                 coalesce(max(extract(epoch from added_at)), 0) a,
+                 coalesce(max(extract(epoch from done_at)), 0) d,
+                 coalesce(max(id), 0) m
+              from entries""")
+    return {"v": f"{r['n']}:{r['m']}:{int(r['a'])}:{int(r['d'])}"}
+
+
 # --- the memory -----------------------------------------------------------------
 
 
