@@ -14,6 +14,10 @@
       {% endfor %}
     </select>
   </form>
+  {# Two ways in, two portals: behind the funnel prefix the portal is this
+     host's root; reached straight on the tailnet port it is the :10000 page. #}
+  <a class="homelink" title="Casa portal"
+     href="{% if base %}/{% else %}https://home.example.ts.net:10000{% endif %}">🏠</a>
 </header>
 
 <form method="post" action="{{ base }}/add" class="addbar" autocomplete="off">

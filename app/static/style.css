@@ -26,6 +26,17 @@ body {
 
 .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
 .brand { font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+/* The store picker keeps its right-hand seat, with the way home beyond it:
+   margin-left is what holds the pair together once the header has 3 children. */
+.top .atform { margin-left: auto; }
+.homelink {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex: none;
+  text-decoration: none; font-size: 19px; line-height: 1;
+  border-radius: 10px; opacity: .75;
+  transition: opacity .12s ease, transform .12s ease;
+}
+.homelink:hover, .homelink:focus-visible { opacity: 1; transform: translateY(-1px); }
 
 select, input, button {
   font: inherit; color: var(--text); background: var(--surface);
