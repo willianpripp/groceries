@@ -117,6 +117,37 @@ is worth a look if you want the reasoning rather than the code: what was built,
 what was deliberately not built (offline mode is waiting for proven pain), and
 which rules were decided after actually standing in a supermarket.
 
+## How this was built
+
+I built this with [Claude Code](https://claude.com/claude-code), using several
+of Anthropic's models, and I would rather say that plainly than leave anyone to
+guess. Most of the code in this repository was written by a model. The parts
+that make it worth running were not.
+
+What the split actually looks like:
+
+- **The decisions are mine.** What to build, what to refuse to build, and the
+  rules the app enforces: that buying something at a different store is an
+  exception and never moves that item's home store. [STATUS.md](STATUS.md) is
+  the record of those arguments, and most of them were settled by standing in
+  a supermarket, not by planning.
+- **The models wrote most of the implementation**, often several working in
+  parallel on separate pieces, with a different model reviewing the diff before
+  anything shipped. I read the parts that mattered, and I have been the one
+  running it in production since day one.
+- **Real use drove almost every change.** Two people live with this app. The
+  improvements that mattered came from lists of things that annoyed us that
+  week, not from a roadmap, and the bugs worth reading about were found by
+  using it rather than by testing it.
+- **Nothing destructive or public happened without my explicit go-ahead.**
+  Dropping data, writing to the live deployment, making a repository public:
+  each one waited for me to say so. That habit comes from my day job rather
+  than from caution about the tools.
+
+I use these tools every day and I think being straightforward about how the
+work gets done is more useful than the alternative. The code, the commit
+history and the design notes are all here to be judged on their own terms.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
