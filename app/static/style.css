@@ -76,10 +76,17 @@ select { padding: 8px 10px; }
 
 /* --- stores -------------------------------------------------------------- */
 .cols { display: grid; gap: 14px; grid-template-columns: 1fr; }
+/* A grid item defaults to min-width:auto, so a wide row can stretch its column
+   past the viewport and give the whole page a sideways scrollbar. Letting the
+   column shrink is what keeps the phone layout honest. */
+.cols > * { min-width: 0; }
 @media (min-width: 720px) {
   /* Fixed-width tidy columns, left-aligned: no stretched cards on wide
      monitors, no ragged rows from empty stores (those collapse below). */
-  .cols:not(.shopping) { grid-template-columns: repeat(auto-fill, 280px); align-items: start; }
+  /* Tidy columns that still fill the window. At a fixed 280px a row with a
+     quantity AND a note ran out of room and pushed the edit pencil outside
+     the card; 300px is the width at which every combination fits. */
+  .cols:not(.shopping) { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); align-items: start; }
   .cols.shopping { max-width: 760px; }
 }
 .store { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 12px 8px; }
@@ -107,9 +114,24 @@ select { padding: 8px 10px; }
   content: ""; position: absolute; inset: 10px;
   border: 2px solid var(--dim); border-radius: 7px;
 }
-.entry .nm { font-size: 15.5px; overflow-wrap: anywhere; }
+/* The name gets the leftover room and breaks only between words. With
+   `overflow-wrap: anywhere` its min-content width was one character, so as
+   soon as a row had a quantity AND a note competing for space, flexbox
+   happily shrank "Rotisserie chicken" into a one-letter-per-line column. */
+.entry .nm { font-size: 15.5px; overflow-wrap: break-word; flex: 1 1 auto; min-width: min-content; }
 .entry .q, .entry .note { color: var(--dim); font-size: 12.5px; font-family: var(--mono); }
-.entry .from { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; }
+/* Quantity is short and always fully readable; the note is the one thing on
+   the row that may be arbitrarily long, so it is the one thing allowed to
+   shrink and ellipsis. The full text is always in the edit panel. */
+.entry .q { flex: 0 0 auto; white-space: nowrap; }
+.entry .note {
+  flex: 0 1 auto; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.entry .from {
+  font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em;
+  flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .entry .by {
   width: 20px; height: 20px; flex: 0 0 auto;
   display: grid; place-items: center; border-radius: 50%;

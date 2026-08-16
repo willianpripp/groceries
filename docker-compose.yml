@@ -30,12 +30,13 @@ services:
       GATE_SECRET: ${GATE_SECRET:-}
       GATE_USERS: ${GATE_USERS:-}
       GRO_DEVICES: ${GRO_DEVICES:-}
-      TZ: America/New_York
+      GRO_PORTAL_URL: ${GRO_PORTAL_URL:-}
+      TZ: ${TZ:-America/New_York}
     ports:
-      # Loopback for tailscale serve (:8449) and the path router (/groceries);
-      # the LAN address for the home wifi tier, same as the calendar.
+      # Loopback only, on purpose: a reverse proxy or a VPN front end is meant
+      # to be the way in. Extra bindings (a LAN address, another port) belong
+      # in a docker-compose.override.yml, which is host-specific and ignored.
       - "127.0.0.1:3030:8000"
-      - "192.0.2.251:3030:8000"
     healthcheck:
       test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)\" || exit 1"]
       interval: 30s

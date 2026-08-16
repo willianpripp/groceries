@@ -14,10 +14,13 @@
       {% endfor %}
     </select>
   </form>
-  {# Two ways in, two portals: behind the funnel prefix the portal is this
-     host's root; reached straight on the tailnet port it is the :10000 page. #}
-  <a class="homelink" title="Casa portal"
-     href="{% if base %}/{% else %}https://home.example.ts.net:10000{% endif %}">🏠</a>
+  {# Two ways in, two portals: behind a path router the portal is this host's
+     root; reached straight on the app's own port it is GRO_PORTAL_URL. With
+     neither, this app is the whole site and there is no link to draw. #}
+  {% if base or portal_url %}
+  <a class="homelink" title="Home portal"
+     href="{% if base %}/{% else %}{{ portal_url }}{% endif %}">🏠</a>
+  {% endif %}
 </header>
 
 <form method="post" action="{{ base }}/add" class="addbar" autocomplete="off">

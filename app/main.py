@@ -30,6 +30,11 @@ import gate
 
 DSN = os.environ.get("GRO_DSN", "postgresql://groceries:groceries@db:5432/groceries")
 
+# Where the 🏠 link goes when this app is reached directly rather than through
+# a path router. Empty means "no portal", and the link is simply not rendered:
+# a standalone install has nothing to go back to.
+PORTAL_URL = os.environ.get("GRO_PORTAL_URL", "").strip()
+
 SCHEMA = """
 create table if not exists stores (
     id serial primary key,
@@ -275,6 +280,7 @@ def page_ctx(request: Request, at: int | None):
         "done_today": done_today, "at": at, "names": names, "usuals": usuals,
         "who": who(request),
         "open_count": len(open_entries),
+        "portal_url": PORTAL_URL,
     }
 
 
