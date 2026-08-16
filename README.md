@@ -110,14 +110,18 @@ framework, no cloud service. About 900 lines of Python and one stylesheet. Every
 hardware in the house, which is why the list keeps working when the internet
 does not.
 
-## Layout
+## Project structure
 
 ```
-app/main.py        routes, schema, the store-memory rules
-app/gate.py        who is trusted, who needs a password
-app/templates/     Jinja, phone-first CSS with a desktop breakpoint
-demo/seed.sql      the invented list used by `make demo`
-docker-compose.yml app + postgres, loopback-bound on purpose
+groceries/
+├── app/
+│   ├── main.py           # routes, schema, the store-memory rules
+│   ├── gate.py           # who is trusted, who needs a password
+│   └── templates/        # Jinja, phone-first CSS with a desktop breakpoint
+├── demo/seed.sql         # the invented list used by `make demo`
+├── docker-compose.yml    # app + postgres, loopback-bound on purpose
+├── Makefile              # make demo
+└── README.md
 ```
 
 The committed compose file binds to loopback only: a reverse proxy or a VPN
