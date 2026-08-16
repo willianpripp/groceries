@@ -1,5 +1,7 @@
 # Groceries
 
+[![hygiene](https://github.com/willianpripp/groceries/actions/workflows/hygiene.yml/badge.svg)](https://github.com/willianpripp/groceries/actions/workflows/hygiene.yml)
+
 A shared supermarket list for a household, built around one observation: the
 hard part is not remembering *what* to buy, it is remembering *where*. So the
 list has a memory. Every item learns the store it is normally bought at, gets
