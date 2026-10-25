@@ -1,0 +1,3 @@
+# Test-only dependency. The drift test reads source files as text, so nothing
+# from app/requirements.txt is needed to run this suite.
+pytest==8.3.4

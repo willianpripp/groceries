@@ -3,7 +3,7 @@
 # (guests, the work MacBook at home).
 services:
   db:
-    image: postgres:17.10
+    image: postgres:17.11
     restart: unless-stopped
     environment:
       POSTGRES_USER: groceries
