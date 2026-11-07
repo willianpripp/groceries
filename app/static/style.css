@@ -222,3 +222,27 @@ select { padding: 8px 10px; }
 }
 .loginerr { color: #E5714D; font-size: 13.5px; margin: 0; }
 .loginhint { color: var(--dim); font-size: 12px; margin-top: 16px; }
+
+/* --- phone: quantity controls and notes ------------------------------------ */
+/* On a phone the stepper and the unit control wrapped onto two rows, the edit
+   panel kept a 44px indent that left the units too narrow to tap, and a note
+   squeezed the item name into two lines while showing only "ask for th…".
+   Below the desktop breakpoint the stepper and units share one row with the
+   units taking the leftover width, the edit panel uses the full card width,
+   and the note gets its own line under the name, in full. */
+@media (max-width: 719px) {
+  .stepper { flex-wrap: nowrap; gap: 4px; }
+  .stepper input[type=number] { width: 52px; padding: 9px 4px; }
+  .stepper .qminus, .stepper .qplus { width: 38px; flex: 0 0 auto; }
+  .stepper .units { flex: 1 1 auto; min-width: 0; margin-left: 4px; }
+  .stepper .units label { flex: 1 1 0; min-width: 0; }
+  .stepper .units span { padding: 9px 0; text-align: center; }
+  .editpanel { margin: 6px 0 4px; }
+  .editpanel .enote { flex: 1 1 100%; }
+  .editpanel select { flex: 1 1 auto; min-width: 0; }
+  .entry { flex-wrap: wrap; row-gap: 0; }
+  .entry .note {
+    order: 5; flex: 1 0 100%; white-space: normal; overflow: visible;
+    padding: 0 4px 6px 50px; margin-top: -4px; overflow-wrap: anywhere;
+  }
+}
