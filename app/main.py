@@ -105,13 +105,16 @@ def backfill_qty(conn):
     """Fill qty_num/unit from the old free text where it clearly parses.
     Idempotent: only rows still without a number are looked at, and rows that
     never parse stay null (their badge shows the text as written)."""
-    rows = conn.execute("select id, qty from entries where qty_num is null"
-                        " and qty <> ''").fetchall()
-    for eid, text in rows:
-        p = qtymod.parse_text(text)
+    # Explicit row factory: q() leaves dict_row on pooled connections, so the
+    # shape of a row here must not depend on which connection the pool hands out.
+    cur = conn.cursor(row_factory=dict_row)
+    rows = cur.execute("select id, qty from entries where qty_num is null"
+                       " and qty <> ''").fetchall()
+    for row in rows:
+        p = qtymod.parse_text(row["qty"])
         if p:
             conn.execute("update entries set qty_num = %s, unit = %s where id = %s",
-                         (p[0], p[1], eid))
+                         (p[0], p[1], row["id"]))
 
 
 @app.on_event("startup")
