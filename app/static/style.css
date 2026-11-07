@@ -28,7 +28,11 @@ body {
 .brand { font-weight: 800; font-size: 20px; letter-spacing: -.01em; white-space: nowrap; }
 /* The store picker keeps its right-hand seat, with the way home beyond it:
    margin-left is what holds the pair together once the header has 3 children. */
-.top .atform { margin-left: auto; }
+.top .atform { margin-left: auto; min-width: 0; flex: 0 1 auto; }
+/* The select sizes itself to its longest option ("I'm at Farmers Market"),
+   which on a phone pushed the home link past the right edge. Capping it at
+   the form's width lets it shrink and ellipsis instead. */
+.top .atform select { max-width: 100%; text-overflow: ellipsis; }
 .homelink {
   display: inline-flex; align-items: center; justify-content: center;
   width: 34px; height: 34px; flex: none;
