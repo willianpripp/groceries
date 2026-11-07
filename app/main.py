@@ -27,6 +27,7 @@ from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
 import gate
+import qty as qtymod
 
 DSN = os.environ.get("GRO_DSN", "postgresql://groceries:groceries@db:5432/groceries")
 
@@ -79,6 +80,12 @@ create index if not exists entries_open on entries (done_at) where done_at is nu
 -- In-place edits (qty/note/store, 2026-08-15) need their own timestamp so the
 -- live-sync fingerprint moves without touching added_at (which orders the list).
 alter table entries add column if not exists updated_at timestamptz;
+
+-- Quantity as number + unit (un = count). `qty` text stays: it is still
+-- written (normalised) for anything that reads it, and it is what shows for
+-- legacy rows that never parsed.
+alter table entries add column if not exists qty_num numeric;
+alter table entries add column if not exists unit text;
 """
 
 SEED_STORES = [("Costco", "#C94A4A", 10), ("Aldi", "#4A7BC9", 20),
@@ -91,6 +98,20 @@ pool = ConnectionPool(DSN, min_size=1, max_size=4, open=False)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+qtymod.register(templates.env)
+
+
+def backfill_qty(conn):
+    """Fill qty_num/unit from the old free text where it clearly parses.
+    Idempotent: only rows still without a number are looked at, and rows that
+    never parse stay null (their badge shows the text as written)."""
+    rows = conn.execute("select id, qty from entries where qty_num is null"
+                        " and qty <> ''").fetchall()
+    for eid, text in rows:
+        p = qtymod.parse_text(text)
+        if p:
+            conn.execute("update entries set qty_num = %s, unit = %s where id = %s",
+                         (p[0], p[1], eid))
 
 
 @app.on_event("startup")
@@ -98,6 +119,7 @@ def startup():
     pool.open()
     with pool.connection() as conn:
         conn.execute(SCHEMA)
+        backfill_qty(conn)
         for name, color, pos in SEED_STORES:
             conn.execute(
                 "insert into stores (name, color, pos) values (%s, %s, %s)"
@@ -246,13 +268,13 @@ def who(request: Request) -> str:
 def page_ctx(request: Request, at: int | None):
     stores = q("select * from stores order by pos, name")
     open_entries = q("""
-        select e.id, e.qty, e.note, e.planned_store, e.added_by,
+        select e.id, e.qty, e.qty_num, e.unit, e.note, e.planned_store, e.added_by,
                i.name, i.category
         from entries e join items i on i.id = e.item_id
         where e.done_at is null
         order by e.added_at""")
     done_today = q("""
-        select e.id, e.qty, e.planned_store, e.bought_store, i.name
+        select e.id, e.qty, e.qty_num, e.unit, e.planned_store, e.bought_store, i.name
         from entries e join items i on i.id = e.item_id
         where e.done_at::date = current_date
         order by e.done_at desc""")
@@ -293,7 +315,8 @@ def index(request: Request):
 
 @app.post("/add")
 def add(request: Request, name: str = Form(""), store: str = Form("auto"),
-        qty: str = Form(""), note: str = Form(""), category: str = Form("")):
+        qty_num: str = Form(""), unit: str = Form("un"),
+        note: str = Form(""), category: str = Form("")):
     name = name.strip()
     if not name:
         return RedirectResponse(base_of(request) + "/", status_code=303)
@@ -305,10 +328,12 @@ def add(request: Request, name: str = Form(""), store: str = Form("auto"),
         s = suggest_store(name)
         item = remember(name, None, category or None)
         planned = s["store_id"]
-    # No quantity means one: every row carries a number (Willian, 2026-08-15).
-    q("insert into entries (item_id, qty, note, planned_store, added_by)"
-      " values (%s, %s, %s, %s, %s)",
-      (item["id"], qty.strip() or "1", note.strip(), planned, who(request)))
+    # No quantity means 1 un: every row carries a number.
+    num, unit = qtymod.parse_input(qty_num, unit)
+    q("insert into entries (item_id, qty, qty_num, unit, note, planned_store, added_by)"
+      " values (%s, %s, %s, %s, %s, %s, %s)",
+      (item["id"], qtymod.normalise(num, unit), num, unit, note.strip(), planned,
+       who(request)))
     return RedirectResponse(base_of(request) + "/", status_code=303)
 
 
@@ -339,17 +364,24 @@ def move(request: Request, eid: int, store: int = Form(...)):
 
 
 @app.post("/entries/{eid}/update")
-def update_entry(request: Request, eid: int, qty: str = Form(""),
-                 note: str = Form(""), store: str = Form("")):
+def update_entry(request: Request, eid: int, qty_num: str = Form(""),
+                 unit: str = Form("un"), note: str = Form(""),
+                 store: str = Form("")):
     """Edit an open entry in place: qty, note, store. Changing the store here
     is as deliberate as tapping a chip on add, so it moves the item's home."""
     e = q1("select e.*, i.name from entries e join items i on i.id = e.item_id"
            " where e.id = %s and e.done_at is null", (eid,))
     if e:
         new_store = int(store) if store.isdigit() else None
-        q("update entries set qty = %s, note = %s, planned_store = %s,"
-          " updated_at = now() where id = %s",
-          (qty.strip() or "1", note.strip(), new_store, eid))
+        if not qty_num.strip() and e["qty_num"] is None and e["qty"].strip():
+            # A legacy text quantity ("1 pack") left untouched stays as written.
+            num, unit, text = None, None, e["qty"]
+        else:
+            num, unit = qtymod.parse_input(qty_num, unit)
+            text = qtymod.normalise(num, unit)
+        q("update entries set qty = %s, qty_num = %s, unit = %s, note = %s,"
+          " planned_store = %s, updated_at = now() where id = %s",
+          (text, num, unit, note.strip(), new_store, eid))
         if new_store and new_store != e["planned_store"]:
             remember(e["name"], new_store, None)
     return RedirectResponse(base_of(request) + "/", status_code=303)

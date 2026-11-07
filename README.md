@@ -76,6 +76,16 @@ same item, never guessed. So a brand new item in a known category lands
 somewhere sensible instead of in a pile called "Anywhere", and the app is
 never confidently wrong about something it was never told.
 
+**Quantity as a number and a unit.** Each entry stores `qty_num` and `unit`
+(`un` for a count, or `lb`, `oz`, `kg`, `g`), shown as a badge before the item
+name so the amount is the first thing read in the store. The add bar and the
+edit panel use a number input with a unit selector that works without
+JavaScript; the −/+ buttons are a progressive enhancement that step by unit
+(1 un, 0.5 lb or kg, 100 g, 4 oz). The old free-text `qty` column stays and is
+written in normalised form ("2 lb"). At boot, rows whose text clearly parses
+are backfilled; anything else (say "1 pack") keeps its original text on the
+badge. Who added an entry is still stored but no longer drawn on the row.
+
 **Live sync without a framework.** Phones poll a change fingerprint every four
 seconds and re-render only when it moves, and they hold still while someone is
 mid-typing or has an edit panel open. That is the entire real-time story, and
@@ -117,6 +127,7 @@ groceries/
 ├── app/
 │   ├── main.py           # routes, schema, the store-memory rules
 │   ├── gate.py           # who is trusted, who needs a password
+│   ├── qty.py            # quantity parsing, normalising and the badge
 │   └── templates/        # Jinja, phone-first CSS with a desktop breakpoint
 ├── demo/seed.sql         # the invented list used by `make demo`
 ├── docker-compose.yml    # app + postgres, loopback-bound on purpose

@@ -1,3 +1,20 @@
+{# Quantity input: a plain number + unit radios work with no JavaScript; the
+   script un-hides the -/+ buttons, which step by the checked unit. #}
+{% macro stepper(num=None, unit='un', legacy='') %}
+<div class="stepper" data-steps='{{ qty_steps | tojson }}'>
+  <button type="button" class="qminus" aria-label="Less" hidden>−</button>
+  <input type="number" name="qty_num" inputmode="decimal" min="0" step="any"
+         value="{{ qty_value(num) if num is not none else ('' if legacy else '1') }}"
+         {% if legacy %}placeholder="{{ legacy }}"{% endif %} aria-label="Quantity">
+  <button type="button" class="qplus" aria-label="More" hidden>+</button>
+  <span class="units" role="radiogroup" aria-label="Unit">
+    {% for u in qty_units %}
+    <label><input type="radio" name="unit" value="{{ u }}" {% if (unit or 'un') == u %}checked{% endif %}><span>{{ u }}</span></label>
+    {% endfor %}
+  </span>
+</div>
+{% endmacro %}
+
 {% macro entry_row(e, at_store=None, from_store=None) %}
 {# The box toggles bought; the ✎ opens the panel below with qty, note, store,
    Save and Remove. Forms can't nest, so the toggle form wraps only the box
@@ -8,15 +25,14 @@
       {% if at_store %}<input type="hidden" name="at" value="{{ at_store }}">{% endif %}
       <button class="box" title="Bought"></button>
     </form>
+    {{ qty_badge(e.qty_num, e.unit, e.qty) }}
     <span class="nm">{{ e.name }}</span>
     {% if from_store %}<span class="from" style="color: {{ from_store.color }}">{{ from_store.name }}</span>{% endif %}
-    <span class="q">{{ e.qty or '1' }}</span>
     {% if e.note %}<span class="note">{{ e.note }}</span>{% endif %}
-    {% if e.added_by %}<span class="by">{{ e.added_by[:1] }}</span>{% endif %}
     <button type="button" class="editbtn" title="Edit or remove" aria-expanded="false">✎</button>
   </div>
   <form method="post" action="{{ base }}/entries/{{ e.id }}/update" class="editpanel" hidden>
-    <input name="qty" value="{{ e.qty or '1' }}" class="eqty" aria-label="Quantity">
+    {{ stepper(e.qty_num, e.unit, e.qty if e.qty_num is none else '') }}
     <input name="note" value="{{ e.note }}" placeholder="note" class="enote" aria-label="Note">
     <select name="store" aria-label="Store">
       <option value="">Anywhere</option>
