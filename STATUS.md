@@ -3,6 +3,17 @@
 A running record of what was built, what was decided, and what was
 deliberately left out. Newest first.
 
+**Quantity badge, phone layout (2026-11-05 to 2026-11-08):** the quantity is
+stored as a number plus a unit (`un`, `lb`, `oz`, `kg`, `g`) and shown as a
+badge before the name; the added-by initial left the row (#12). On the phone
+the stepper and units sit on one row, the edit panel takes the full width and
+the note gets its own line (#13); the header store picker shrinks so the home
+icon stays on screen at 360-375 px (#14). The muted grey "1" was hard to read
+in the store, so every quantity is now the accent color and larger under
+720 px, and the stylesheet URL carries its content hash so the home-screen app
+picks up new CSS after a deploy (#17). Each change was checked at phone width
+and on desktop before it shipped.
+
 **Made public (2026-08-15, night):** MIT licence, a documented
 `.env.example`, invented demo data behind `make demo`, a README written for
 somebody who has never seen this house, and every address moved out of the
