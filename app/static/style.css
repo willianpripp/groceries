@@ -160,8 +160,7 @@ select { padding: 8px 10px; }
   background: var(--accent); color: #1A1408; border: 1px solid transparent;
 }
 .entry .q small { font-size: 11px; font-weight: 700; margin-left: 2px; }
-/* a plain 1 is the default, so it stays quiet; raw = legacy text as written */
-.entry .q.plain { background: transparent; color: var(--muted); border-color: var(--line-strong); font-weight: 400; }
+/* raw = legacy text as written */
 .entry .q.raw { font-size: 13px; }
 .entry .note {
   flex: 0 1 auto; min-width: 0;
@@ -235,6 +234,9 @@ select { padding: 8px 10px; }
    units taking the leftover width, the edit panel uses the full card width,
    and the note gets its own line under the name, in full. */
 @media (max-width: 719px) {
+  .entry .q { font-size: 20px; min-width: 40px; padding: 4px 10px; }
+  .entry .q small { font-size: 12px; }
+  .entry .q.raw { font-size: 14px; }
   .stepper { flex-wrap: nowrap; gap: 4px; }
   .stepper input[type=number] { width: 52px; padding: 9px 4px; }
   .stepper .qminus, .stepper .qplus { width: 38px; flex: 0 0 auto; }

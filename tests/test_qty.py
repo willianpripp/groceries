@@ -67,11 +67,11 @@ def test_steps_cover_every_unit():
 
 def test_badge_variants():
     assert qty.badge(Decimal(6), "un", "6") == '<span class="q">6</span>'
-    assert qty.badge(Decimal(1), "un", "1") == '<span class="q plain">1</span>'
+    assert qty.badge(Decimal(1), "un", "1") == '<span class="q">1</span>'
     assert qty.badge(Decimal(1), "lb", "1 lb") == '<span class="q">1<small>lb</small></span>'
     assert qty.badge(Decimal("2.0"), "lb", "2 lb") == '<span class="q">2<small>lb</small></span>'
     assert qty.badge(None, None, "1 pack") == '<span class="q raw">1 pack</span>'
-    assert qty.badge(None, None, "") == '<span class="q plain">1</span>'
+    assert qty.badge(None, None, "") == '<span class="q">1</span>'
 
 
 def test_badge_escapes_legacy_text():

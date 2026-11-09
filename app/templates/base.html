@@ -11,7 +11,7 @@
    start_url is relative so the same file works on the LAN mount (/) and the
    public mount (/groceries/). #}
 <link rel="manifest" href="{{ base }}/static/manifest.webmanifest">
-<link rel="stylesheet" href="{{ base }}/static/style.css">
+<link rel="stylesheet" href="{{ base }}/static/style.css?v={{ css_version }}">
 </head>
 <body>
 {% block content %}{% endblock %}
