@@ -50,19 +50,18 @@ def normalise(num, unit):
 
 
 def badge(qty_num, unit, qty_text):
-    """Markup for the quantity badge. Unparseable rows show their original
-    text; a plain 1 (or nothing at all) is the muted style."""
+    """Markup for the quantity badge, the same highlight for every quantity
+    (1 included) so it reads at a glance in the store. Unparseable rows show
+    their original text; nothing at all shows 1."""
     if qty_num is None:
         txt = (qty_text or "").strip()
         if not txt:
-            return Markup('<span class="q plain">1</span>')
+            return Markup('<span class="q">1</span>')
         return Markup('<span class="q raw">%s</span>') % txt
-    n = fmt_num(qty_num)
-    plain = n == "1" and unit in (None, "", "un")
-    inner = Markup(escape(n))
+    inner = Markup(escape(fmt_num(qty_num)))
     if unit and unit != "un":
         inner += Markup("<small>%s</small>") % unit
-    return Markup('<span class="q%s">%s</span>') % (" plain" if plain else "", inner)
+    return Markup('<span class="q">%s</span>') % inner
 
 
 def stepper_value(qty_num):

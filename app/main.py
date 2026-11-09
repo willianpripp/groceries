@@ -14,6 +14,7 @@
 # gate.py deciding who needs a login (public visitors only), one SCHEMA
 # string, no ORM, no build step.
 
+import hashlib
 import os
 import time as systime
 from datetime import date
@@ -99,6 +100,10 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 qtymod.register(templates.env)
+# The stylesheet URL carries its content hash, so a phone (above all the
+# home-screen app) fetches the new CSS after a deploy instead of a cached one.
+with open("static/style.css", "rb") as _f:
+    templates.env.globals["css_version"] = hashlib.sha256(_f.read()).hexdigest()[:10]
 
 
 def backfill_qty(conn):
